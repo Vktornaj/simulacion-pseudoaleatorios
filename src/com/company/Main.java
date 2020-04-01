@@ -62,12 +62,29 @@ public class Main {
 //        for (int i = 0; i < histo.length; i++) {
 //            System.out.println("intervalo " + i + ": " + histo[i]);
 //        }
-        double chiCuadrado =  chiCua(numsD);
+        double fEsperada[] = new double[numsD.length];
+        for (int i = 0; i < numsD.length; i++) {
+            fEsperada[i] = numsD.length / Math.sqrt(numsD.length);
+        }
+        double chiCuadrado =  chiCua(histoG(numsD),fEsperada);
         System.out.println("Chi-cuadrado: " + chiCuadrado);
 
         //Prueba double abe[] = {1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1};
-        independenciaN(numsD);
-        pPoquer(numsD);
+        if (independenciaN(numsD)) {
+            System.out.println("Pasa la prueba de independencia numerica");
+        }
+//        double prueba[] = {0.37471, 0.05566, 0.69733, 0.49280, 0.01329, 0.40512,
+//                0.35454, 0.95358, 0.31744, 0.88645, 0.52453, 0.54689,
+//                0.40646, 0.79288, 0.60839, 0.73411, 0.47658, 0.76775,
+//                0.94693, 0.56128, 0.31011, 0.09285, 0.12237, 0.92991,
+//                0.82412, 0.98549, 0.56904, 0.31494, 0.57540, 0.26857,
+//                0.05902, 0.45104, 0.68216, 0.40272, 0.62744 ,0.51984,
+//                0.02670, 0.00193, 0.59854, 0.25936, 0.82816, 0.16664,
+//                0.39512, 0.54001, 0.89942, 0.58920, 0.14401, 0.52088,
+//                0.53754, 0.06095, 0.12390, 0.94978, 0.88129, 0.11297,
+//                0.77153, 0.73199, 0.41748, 0.48591, 0.87310, 0.56600};
+
+        System.out.println("Prueba de poquer: " + pPoquer(numsD));
 
     }
 
@@ -156,15 +173,13 @@ public class Main {
         return histo;
     }
 
-    public static double chiCua(double numsD[]){
-        int histo[] = histoG(numsD);
-        int n = histo.length - 1;
-        double fEsperada = numsD.length / Math.sqrt(numsD.length), suma = 0;
-        for (int i = 0; i < n; i++) {
-            suma = suma + Math.pow(histo[i] - fEsperada, 2) / fEsperada;
+    public static double chiCua(int histo[],double fEsperada[]){
+        double suma = 0;
+        for (int i = 0; i < histo.length; i++) {
+            suma = suma + Math.pow(histo[i] - fEsperada[i], 2) / fEsperada[i];
         }
 
-        System.out.println("Grados de libertad: " + (n - 1));
+        System.out.println("Grados de libertad: " + (histo.length - 1));
         return suma;
     }
 
@@ -204,8 +219,83 @@ public class Main {
         return (1.96F > estadistico && estadistico > -1.96F);
     }
 
-    public static boolean pPoquer(double[] numsD){
-        
-        return true;
+    public static double pPoquer(double[] numsD){
+        int max = 0;
+        int pares = 0;
+        int tercias = 0;
+        int cuartas = 0;
+        int n;
+        int[] decimalN = new int[10];
+        int[] combinaciones = new int[5];
+        double probabilidad[] = {0.3024,0.504,0.108,0.072,0.0136};
+
+        for (int i = 0; i < numsD.length; i++) {
+            n = (int) (numsD[i] * 100000 + 0.0000001);
+
+//            String s = "";
+            for (int j = 0; j < 5; j++) {
+                decimalN[n % 10]++;
+//                s = (n % 10) + "" + s;
+                n = n / 10;
+
+            }
+//            System.out.print(s + " ");
+//            if ( (i + 1) % 6 == 0 ){
+//                System.out.println();
+//            }
+
+            for (int j = 0; j < 10; j++) {
+                if (decimalN[j] > max) {
+                    max = decimalN[j];
+                }
+                if (decimalN[j] == 2) {
+                    pares++;
+                }
+                if (decimalN[j] == 3) {
+                    tercias++;
+                }
+                if (decimalN[j] == 4) {
+                    cuartas++;
+                }
+            }
+//            System.out.println("Pares: " + pares + " Tercias: " + tercias + " Cuartas: " + cuartas + " Max: " + max);
+//            for (int j = 0; j < 10; j++) {
+//                System.out.print(decimalN[j] + " ");
+//            }
+//            System.out.println();
+            for (int j = 0; j < 10; j++) {
+                decimalN[j] = 0;
+            }
+            if (max == 1) {
+                combinaciones[0]++;//Todos los digitos diferentes
+            }else if (pares == 1) {
+                if (tercias == 0) {
+                    combinaciones[1]++;//Hay un par
+                }else {
+                    combinaciones[4]++;//Tres digitos iguales mas un par
+                }
+            }else if (pares == 2) {
+                combinaciones[2]++;//Dos pares diferentes
+            }else if (tercias == 1) {
+                combinaciones[3]++;//Tres digitos iguales
+            }else if (cuartas == 1) {
+                combinaciones[4]++;//Cuatro digitos iguales
+            }else{
+                combinaciones[4]++;//Todos los digitos son iguales
+            }
+            max = 0;
+            pares = 0;
+            tercias = 0;
+            cuartas = 0;
+        }
+//        for (int i = 0; i < 5; i++) {
+//            System.out.println("Obtenidas: " + combinaciones[i]);
+//        }
+//        for (int i = 0; i < 5; i++) {
+//            probabilidad[i] = probabilidad[i] * numsD.length;
+//            System.out.println("Esperadas: " + probabilidad[i]);
+//        }
+
+        return chiCua(combinaciones, probabilidad);
     }
 }
