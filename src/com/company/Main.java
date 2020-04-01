@@ -3,6 +3,9 @@ package com.company;
 import org.apache.commons.math3.distribution.NormalDistribution;
 
 import java.util.Scanner;
+import java.util.function.DoubleToIntFunction;
+
+//Autor: Victor Eduardo Garcia Najera
 
 public class Main {
 
@@ -61,6 +64,10 @@ public class Main {
 //        }
         double chiCuadrado =  chiCua(numsD);
         System.out.println("Chi-cuadrado: " + chiCuadrado);
+
+        //Prueba double abe[] = {1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1};
+        independenciaN(numsD);
+        pPoquer(numsD);
 
     }
 
@@ -151,7 +158,7 @@ public class Main {
 
     public static double chiCua(double numsD[]){
         int histo[] = histoG(numsD);
-        int n = histo.length;
+        int n = histo.length - 1;
         double fEsperada = numsD.length / Math.sqrt(numsD.length), suma = 0;
         for (int i = 0; i < n; i++) {
             suma = suma + Math.pow(histo[i] - fEsperada, 2) / fEsperada;
@@ -159,5 +166,46 @@ public class Main {
 
         System.out.println("Grados de libertad: " + (n - 1));
         return suma;
+    }
+
+    public static boolean independenciaN(double[] numsD){
+        int co = 1, n0 = 0, n1 = 0, n = numsD.length;
+        double vEsperado, estadistico, varianza;
+        boolean bandera;
+        if (numsD[0] > 0.5 ){
+            bandera = false;
+        }else{
+            bandera = true;
+        }
+        for (int i = 0; i < n; i++) {
+            if (numsD[i] > 0.5) {
+                n1++;
+                if (bandera) {
+                    co++;
+                }
+                bandera = false;
+            }else{
+                n0++;
+                if (!bandera) {
+                    co++;
+                }
+                bandera = true;
+            }
+        }
+        System.out.println("co = " + co + ", n0 = " + n0 + ", n1 = " + n1 + ", n = " + n);
+        vEsperado = 2.0 * n0 * n1 / n + 0.5;
+        System.out.println("Esperado = " + vEsperado);
+        double a = 2 * n0 * n1;
+        varianza = (a * (a - n)) / (Math.pow(n, 2) * (n - 1));
+        System.out.println("Varianza = " + varianza);
+        estadistico = (co - vEsperado) / Math.sqrt(varianza);
+        System.out.println("Z = " + estadistico);
+
+        return (1.96F > estadistico && estadistico > -1.96F);
+    }
+
+    public static boolean pPoquer(double[] numsD){
+        
+        return true;
     }
 }
